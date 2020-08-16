@@ -1,9 +1,9 @@
 from TokensJS import *
 from simpleList import *
 
-
 myListTokens = SingleLinkedList()
 myListErrors = SingleLinkedList()
+myListColores = SingleLinkedList()
 class AnalizadorLexicoJS:
     state = 0
     auxLex = ""
@@ -16,55 +16,462 @@ class AnalizadorLexicoJS:
 
     def VerifyReservedToken(self):
         if self.auxLex == "var":
-            return RESERVADA_var
-        elif self.auxLex == "int":
-            return RESERVADA_INT
-        elif self.auxLex == "string":
-            return RESERVADA_STRING
-        elif self.auxLex == "char":
-            return RESERVADA_CHAR
-        elif self.auxLex == "boolean":
-            return RESERVADA_BOOLEAN
+            return "RESERVADA"
         elif self.auxLex == "if":
-            return RESERVADA_IF
+            return "RESERVADA"
         elif self.auxLex == "console":
-            return RESERVADA_CONSOLE
+            return "RESERVADA"
         elif self.auxLex == "log":
-            return RESERVADA_LOG
+            return "RESERVADA"
         elif self.auxLex == "else":
-            return RESERVADA_ELSE
+            return "RESERVADA"
         elif self.auxLex == "for":
-            return RESERVADA_FOR
+            return "RESERVADA"
         elif self.auxLex == "while":
-            return RESERVADA_WHILE
+            return "RESERVADA"
         elif self.auxLex == "do":
-            return RESERVADA_DO
+            return "RESERVADA"
         elif self.auxLex == "continue":
-            return RESERVADA_CONTINUE
+            return "RESERVADA"
         elif self.auxLex == "true":
-            return RESERVADA_TRUE
+            return "BOOLEAN"
         elif self.auxLex == "false":
-            return RESERVADA_FALSE
+            return "BOOLEAN"
         elif self.auxLex == "break":
-            return RESERVADA_BREAK
+            return "RESERVADA"
         elif self.auxLex == "return":
-            return RESERVADA_RETURN
+            return "RESERVADA"
         elif self.auxLex == "funtion":
-            return RESERVADA_FUNTION
+            return "RESERVADA"
         elif self.auxLex == "this":
-            return RESERVADA_THIS
+            return "RESERVADA"
         elif self.auxLex == "constructor":
-            return RESERVADA_CONSTRUCTOR
+            return "RESERVADA"
         elif self.auxLex == "class":
-            return RESERVADA_CLASS
+            return "RESERVADA"
         elif self.auxLex == "pow":
-            return RESERVADA_POW
+            return "RESERVADA"
         elif self.auxLex == "Math":
-            return RESERVADA_MATH
+            return "RESERVADA"
         else:
             return ID
     
+    def analizadorColoresJS(self,entra):
+        entra += "#"
+        aux = ''
+        extra = ''
+        for i, c in enumerate(entra):
+            self.letra = entra[i]
+
+            if self.state == 0:
+
+                if c == '\t' or c == '\r' or c == '\b' or c == '\f' or c == ' ':
+                    self.state = 0
+                    self.auxLex += c
+                    self.addColores("ESPACIOS")
+                
+                elif c == '\n':
+                    self.row += 1
+                    self.state = 0
+                    self.column = 0
+                    self.auxLex += c
+                    self.addColores("ESPACIOS")
+
+                elif c.isalpha():
+                    aux = entra[i+1]
+                    self.auxLex += c
+                    self.state = 1
+                    self.column += 1
+                    if(not (aux.isalpha())):
+                        aux1 = self.VerifyReservedToken()
+                        self.addColores(aux1)
+                        
+                elif c.isdigit():
+                    aux = entra[i+1]
+                    self.auxLex += c
+                    self.state = 2
+                    self.column += 1
+                    
+                    if (not aux.isnumeric()):
+                        
+                        self.addColores(NUMEROS)
+                
+                elif c == '*':
+                    aux = entra[i+1]
+                    self.auxLex += c
+                    self.column += 1
+                    if not (aux == "="):
+                        self.addColores("OPERADORES")
+                    elif aux == "=":
+                        self.state = 22
+                
+                elif c == chr(92):
+                    self.auxLex += c
+                    self.column += 1
+                    self.addColores(S_DIAGONALINVERTIDA)
+                
+                elif c == "=":
+                    self.auxLex += c
+                    self.column += 1
+                    self.addColores("OPERADORES")
+                
+                elif c == "'":
+                    self.auxLex += c
+                    self.column += 1
+                    self.state = 3
+
+                elif c == "(":
+                    self.auxLex += c
+                    self.column += 1
+                    self.addColores("OTROS")
+
+                elif c == ")":
+                    self.auxLex += c
+                    self.column += 1
+                    self.addColores("OTROS")
+
+                elif c == ">":
+                    aux = entra[i+1]
+                    self.auxLex += c
+                    self.column += 1
+                    if not (aux == "="):
+                        self.addColores("OPERADORES")
+                    elif aux == "=":
+                        self.state = 21
+                
+                elif c == "{":
+                    self.auxLex += c
+                    self.column += 1
+                    self.addColores("OTROS")
+
+                elif c == "}":
+                    self.auxLex += c
+                    self.column += 1
+                    self.addColores("OTROS")
+
+                elif c == ".":
+                    self.auxLex += c
+                    self.column += 1
+                    self.addColores("OTROS")
+                
+                elif c == ";":
+                    self.auxLex += c
+                    self.column += 1
+                    self.addColores("OTROS")
+                
+                elif c == '"':
+                    aux = entra[i+1]
+                    self.auxLex += c
+                    self.column += 1
+                    if not (aux == '"'):
+                        self.state = 5
+                    elif aux == '"':
+                        self.state = 6
+                
+                elif c == "<":
+                    aux = entra[i+1]
+                    self.auxLex += c
+                    self.column += 1
+                    if not (aux == "="):
+                        self.addColores("OPERADORES")
+                    elif aux == "=":
+                        self.state = 20
+                
+                elif c == "+":
+                    aux = entra[i+1]
+                    self.auxLex += c
+                    self.column += 1
+                    if not (aux == "+") and not (aux == "="):
+                        self.addColores("OPERADORES")
+                    elif aux == "+" or aux == "=":
+                        self.state = 19
+
+                elif c == "&":
+                    self.auxLex += c
+                    self.column += 1
+                    self.state = 18
+                
+                elif c == "|":
+                    self.auxLex += c
+                    self.column += 1
+                    self.state = 17
+
+                elif c == "/":
+                    extra = ""
+                    aux = entra[i+1]
+                    self.auxLex += c
+                    self.column += 1
+                    if not (aux == "/") and not (aux == "*"):
+                        self.addColores("OPERADORES")
+                    elif aux == "/":
+                        self.state = 7
+
+                    elif aux == "*":
+                        self.state = 23
+
+                elif c == "-":
+                    aux = entra[i+1]
+                    self.auxLex += c
+                    self.column += 1
+                    if not (aux == "-"):
+                        self.addColores("OPERADORES")
+                    elif aux == "-":
+                        self.state = 14
+                    elif aux == "=":
+                        self.state = 15
+                
+                elif c == ":":
+                    self.auxLex += c
+                    self.column += 1
+                    self.addColores("OTROS")
+                
+                elif c == ",":
+                    self.auxLex += c
+                    self.column += 1
+                    self.addColores("OTROS")
+                
+                elif c == "!":
+                    aux = entra[i+1]
+                    self.auxLex += c
+                    self.column += 1
+                    if not (aux == "="):
+                        self.addColores("OPERADORES")
+                    elif aux == "=":
+                        self.state = 16
+
+                else:
+                      if c == "#":
+                          print("se finalizo el analisis lexico")
+                      else:
+                          self.auxLex += c
+                          self.addColores("OTROS")
+                          
+            
+            elif self.state == 1:
+                aux = entra[i+1]
+                if c.isalpha():
+                    self.auxLex += c
+                    self.state = 1
+                    if(not (aux.isalpha() or aux.isnumeric())):
+                        aux1 = self.VerifyReservedToken()
+                        
+                        self.addColores(aux1)
+                elif c.isnumeric():
+                    self.auxLex += c
+                    self.state =1
+                    if(not (aux.isalpha() or aux.isnumeric())):
+                        aux1 = self.VerifyReservedToken()
+                        
+                        self.addColores(aux1)
+            
+            elif self.state == 2:
+                aux = entra[i+1]
+                if c.isnumeric():
+                    self.auxLex += c
+                    self.state = 2
+                    if (not aux.isnumeric()):
+                       
+                        self.addColores(NUMEROS)
+            
+            elif self.state == 3:
+                aux = entra[i+1]
+                if c.isalpha():
+                    self.auxLex += c
+                    self.state = 4
+                elif c.isnumeric():
+                    self.auxLex += c
+                    self.state = 4
+                elif c == '\t' or c == '\r' or c == '\b' or c == '\f' or c == ' ':
+                    self.auxLex += c
+                    self.state = 4
+                elif c.isascii():
+                    self.auxLex += c
+                    self.state = 4
+
+            elif self.state == 4:
+                aux = entra[i+1]
+                if c == "'":
+                    self.auxLex += c
+                    
+                    self.addColores("CONT_FOR_CHAR")
+            
+            elif self.state == 5:
+                aux = entra[i+1]
+                if c.isalpha():
+                    self.auxLex += c
+                    self.state = 5
+                    if(aux == '"'):
+                        self.state = 6
+                elif c.isnumeric():
+                    self.auxLex += c
+                    self.state = 5
+                    if(aux == '"'):
+                        self.state = 6
+                elif c == '\t' or c == '\r' or c == '\b' or c == '\f' or c == ' ':
+                    self.auxLex += c
+                    self.state = 5
+                elif (  c == chr(33) or c == chr(35) or c == chr(36) or c == chr(37) or c == chr(38) or c == chr(39) or c == chr(40) or c == chr(41) or c == chr(42) 
+                     or c == chr(43) or c == chr(44) or c == chr(45) or c == chr(46) or c == chr(47) or c == chr(58) or c == chr(59) or c == chr(60) or c == chr(61)
+                     or c == chr(62) or c == chr(63) or c == chr(64) or c == chr(91) or c == chr(92) or c == chr(93) or c == chr(94) or c == chr(95) or c == chr(96)
+                     or c == chr(93) or c == chr(94) or c == chr(95)):
+                    self.auxLex += c
+                    self.state = 5
+                    if(aux == '"'):
+                        self.state = 6
+            
+            elif self.state == 6:
+                aux = entra[i+1]
+                self.auxLex += c
+                self.addColores("CONT_FOR_STRING")
+            
+            elif self.state == 7:
+                if c == "/":
+                    self.auxLex += c
+                    self.state = 8
+
+            elif self.state == 8:
+                aux = entra[i+1]
+                if c.isalpha():
+                    extra += c
+                    self.auxLex += c
+                    self.state = 8
+                    if aux == "\n":
+                        self.state = 9
+                    elif "PATHL" in extra:
+                        self.state = 10
+                    elif "PATHW" in extra:
+                        self.state = 10
+                elif c.isnumeric():
+                    extra += c
+                    self.auxLex += c
+                    self.state = 8
+                    if aux == "\n":
+                        self.state = 9
+                    elif extra == "PATHL":
+                        self.state = 8
+                    elif extra == "PATHW":
+                        self.state = 8
+                elif c == '\t' or c == '\r' or c == '\b' or c == '\f' or c == ' ':
+                    extra += c
+                    self.auxLex += c
+                    self.state = 8
+                    if aux == "\n":
+                        self.state = 9
+                    elif "PATHL" in extra:
+                        self.state = 10
+                    elif "PATHW" in extra:
+                        self.state = 10
+                elif c.isascii():
+                    extra += c
+                    self.auxLex += c
+                    self.state = 8
+                    if aux == "\n":
+                        self.state = 9
+                    elif "PATHL" == extra:
+                        self.state = 8
+                    elif "PATHW" == extra:
+                        self.state = 8
+
+            elif self.state == 9:
+                self.auxLex += c
+                self.addColores("COMENTARIOS")
+
+            elif self.state == 10:
+                aux = entra[i+1]
+                if c == ":":
+                    self.auxLex += c
+                    if aux == '\t' or aux == '\r' or aux == '\b' or aux == '\f' or aux == ' ':
+                        self.state = 10
+                    elif aux == "/":
+                        self.state = 11
+                    elif aux == "c":
+                        self.state = 13
+                elif c == '\t' or c == '\r' or c == '\b' or c == '\f' or c == ' ':
+                    self.auxLex += c
+                    if aux == '\t' or aux == '\r' or aux == '\b' or aux == '\f' or aux == ' ':
+                        self.state = 10
+                    elif aux == "/":
+                        self.state = 11
+                    elif aux == "c":
+                        self.state = 13
+            elif self.state == 11:
+                if c == "/":
+                    self.auxLex += c
+                    self.state = 12
+            elif self.state == 12:
+                if not (c == "\n"):
+                    self.auxLex += c
+                    self.state = 12
+                else:
+                    self.auxLex += c
+                    self.addColores("COMENTARIO_ESPECIAL")
+            elif self.state == 13:
+                if not (c == "\n"):
+                    self.auxLex += c
+                    self.state = 13
+                else:
+                    self.auxLex += c
+                    self.addColores("COMENTARIO_ESPECIAL")
+            elif self.state == 14:
+                if c == "-":
+                    self.auxLex += c
+                    self.addColores("OPERADORES")
+            elif self.state == 15:
+                if c == "=":
+                    self.auxLex += c
+                    self.addColores("OPERADORES")
+            elif self.state == 16:
+                if c == "=":
+                    self.auxLex += c
+                    self.addColores("OPERADORES")
+            elif self.state == 17:
+                if c == "|":
+                    self.auxLex += c
+                    self.addColores("OPERADORES")
+            elif self.state == 18:
+                if c == "&":
+                    self.auxLex += c
+                    self.addColores("OPERADORES")
+            elif self.state == 19:
+                if c == "+":
+                    self.auxLex += c
+                    self.addColores("OPERADORES")
+                elif c == "=":
+                    self.auxLex += c
+                    self.addColores("OPERADORES")
+            elif self.state == 20:
+                if c == "=":
+                    self.auxLex += c
+                    self.addColores("OPERADORES")
+            elif self.state == 21:
+                self.auxLex += c
+                self.addColores("OPERADORES")
+            elif self.state == 22:
+                self.auxLex += c
+                self.addColores("OPERADORES")
+            elif self.state == 23:
+                if c == "*":
+                    self.auxLex += c
+                    self.state = 24
+            
+            elif self.state == 24:
+                if not (c == '*'):
+                    self.auxLex += c
+                    self.state = 24
+                else:
+                    self.auxLex += c
+                    self.state = 25
+                                 
+            elif self.state == 25:
+                if not (c == "/"):
+                    self.auxLex += c
+                    self.state = 25
+                else:
+                    self.auxLex += c
+                    self.addColores("COMENTARIOS")
+            
     def analizadorJS(self,entra):
+        self.auxLex = ""
         entra += "#"
         aux = ''
         extra = ''
@@ -89,6 +496,7 @@ class AnalizadorLexicoJS:
                     if(not (aux.isalpha())):
                         aux1 = self.VerifyReservedToken()
                         self.addTokens(aux1)
+                        
                 elif c.isdigit():
                     aux = entra[i+1]
                     self.auxLex += c
@@ -96,12 +504,17 @@ class AnalizadorLexicoJS:
                     self.column += 1
                     
                     if (not aux.isnumeric()):
+                        
                         self.addTokens(NUMEROS)
                 
                 elif c == '*':
+                    aux = entra[i+1]
                     self.auxLex += c
                     self.column += 1
-                    self.addTokens(S_ASTERISCO)
+                    if not (aux == "="):
+                        self.addTokens("OPERADORES")
+                    elif aux == "=":
+                        self.state = 22
                 
                 elif c == chr(92):
                     self.auxLex += c
@@ -111,7 +524,7 @@ class AnalizadorLexicoJS:
                 elif c == "=":
                     self.auxLex += c
                     self.column += 1
-                    self.addTokens(S_IGUAL)
+                    self.addTokens("OPERADORES")
                 
                 elif c == "'":
                     self.auxLex += c
@@ -121,37 +534,41 @@ class AnalizadorLexicoJS:
                 elif c == "(":
                     self.auxLex += c
                     self.column += 1
-                    self.addTokens(S_PARENTESIS_A)
+                    self.addTokens("OTROS")
 
                 elif c == ")":
                     self.auxLex += c
                     self.column += 1
-                    self.addTokens(S_PARENTESIS_C)
+                    self.addTokens("OTROS")
 
                 elif c == ">":
+                    aux = entra[i+1]
                     self.auxLex += c
                     self.column += 1
-                    self.addTokens(S_MAYOR)
+                    if not (aux == "="):
+                        self.addTokens("OPERADORES")
+                    elif aux == "=":
+                        self.state = 21
                 
                 elif c == "{":
                     self.auxLex += c
                     self.column += 1
-                    self.addTokens(S_LLAVE_A)
+                    self.addTokens("OTROS")
 
                 elif c == "}":
                     self.auxLex += c
                     self.column += 1
-                    self.addTokens(S_LLAVE_C)
+                    self.addTokens("OTROS")
 
                 elif c == ".":
                     self.auxLex += c
                     self.column += 1
-                    self.addTokens(S_PUNTO)
+                    self.addTokens("OTROS")
                 
                 elif c == ";":
                     self.auxLex += c
                     self.column += 1
-                    self.addTokens(S_PUNTOCOMA)
+                    self.addTokens("OTROS")
                 
                 elif c == '"':
                     aux = entra[i+1]
@@ -163,24 +580,32 @@ class AnalizadorLexicoJS:
                         self.state = 6
                 
                 elif c == "<":
+                    aux = entra[i+1]
                     self.auxLex += c
                     self.column += 1
-                    self.addTokens(S_MENOR)
+                    if not (aux == "="):
+                        self.addTokens("OPERADORES")
+                    elif aux == "=":
+                        self.state = 20
                 
                 elif c == "+":
+                    aux = entra[i+1]
                     self.auxLex += c
                     self.column += 1
-                    self.addTokens(S_MAS)
+                    if not (aux == "+") and not (aux == "="):
+                        self.addTokens("OPERADORES")
+                    elif aux == "+" or aux == "=":
+                        self.state = 19
 
                 elif c == "&":
                     self.auxLex += c
                     self.column += 1
-                    self.addTokens(S_AND)
+                    self.state = 18
                 
                 elif c == "|":
                     self.auxLex += c
                     self.column += 1
-                    self.addTokens(S_OR)
+                    self.state = 17
 
                 elif c == "/":
                     extra = ""
@@ -188,32 +613,42 @@ class AnalizadorLexicoJS:
                     self.auxLex += c
                     self.column += 1
                     if not (aux == "/") and not (aux == "*"):
-                        self.addTokens(S_DIAGONAL)
+                        self.addTokens("OPERADORES")
                     elif aux == "/":
                         self.state = 7
 
                     elif aux == "*":
-                        self.state = 9
+                        self.state = 23
 
                 elif c == "-":
+                    aux = entra[i+1]
                     self.auxLex += c
                     self.column += 1
-                    self.addTokens(S_MENOS)
+                    if not (aux == "-"):
+                        self.addTokens("OPERADORES")
+                    elif aux == "-":
+                        self.state = 14
+                    elif aux == "=":
+                        self.state = 15
                 
                 elif c == ":":
                     self.auxLex += c
                     self.column += 1
-                    self.addTokens(S_DOSPUNTOS)
+                    self.addTokens("OTROS")
                 
                 elif c == ",":
                     self.auxLex += c
                     self.column += 1
-                    self.addTokens(S_COMA)
+                    self.addTokens("OTROS")
                 
                 elif c == "!":
+                    aux = entra[i+1]
                     self.auxLex += c
                     self.column += 1
-                    self.addTokens(S_EXCLAMACION)
+                    if not (aux == "="):
+                        self.addTokens("OPERADORES")
+                    elif aux == "=":
+                        self.state = 16
 
                 else:
                       if c == "#":
@@ -230,12 +665,14 @@ class AnalizadorLexicoJS:
                     self.state = 1
                     if(not (aux.isalpha() or aux.isnumeric())):
                         aux1 = self.VerifyReservedToken()
+                        
                         self.addTokens(aux1)
                 elif c.isnumeric():
                     self.auxLex += c
                     self.state =1
                     if(not (aux.isalpha() or aux.isnumeric())):
                         aux1 = self.VerifyReservedToken()
+                        
                         self.addTokens(aux1)
             
             elif self.state == 2:
@@ -244,6 +681,7 @@ class AnalizadorLexicoJS:
                     self.auxLex += c
                     self.state = 2
                     if (not aux.isnumeric()):
+                       
                         self.addTokens(NUMEROS)
             
             elif self.state == 3:
@@ -262,8 +700,10 @@ class AnalizadorLexicoJS:
                     self.state = 4
 
             elif self.state == 4:
+                aux = entra[i+1]
                 if c == "'":
                     self.auxLex += c
+                    
                     self.addTokens("CONT_FOR_CHAR")
             
             elif self.state == 5:
@@ -291,6 +731,7 @@ class AnalizadorLexicoJS:
                         self.state = 6
             
             elif self.state == 6:
+                aux = entra[i+1]
                 self.auxLex += c
                 self.addTokens("CONT_FOR_STRING")
             
@@ -344,7 +785,7 @@ class AnalizadorLexicoJS:
 
             elif self.state == 9:
                 self.auxLex += c
-                self.addTokens(COMENTARIOSIMPLE)
+                self.addTokens("COMENTARIOS")
 
             elif self.state == 10:
                 aux = entra[i+1]
@@ -374,40 +815,98 @@ class AnalizadorLexicoJS:
                     self.state = 12
                 else:
                     self.auxLex += c
-                    self.addTokens("RESERVADA_PATHLINUX")
+                    self.addTokens("COMENTARIO_ESPECIAL")
             elif self.state == 13:
                 if not (c == "\n"):
                     self.auxLex += c
                     self.state = 13
                 else:
                     self.auxLex += c
-                    self.addTokens("RESERVADA_PATHWINDOWS")
-
+                    self.addTokens("COMENTARIO_ESPECIAL")
+            elif self.state == 14:
+                if c == "-":
+                    self.auxLex += c
+                    self.addTokens("OPERADORES")
+            elif self.state == 15:
+                if c == "=":
+                    self.auxLex += c
+                    self.addTokens("OPERADORES")
+            elif self.state == 16:
+                if c == "=":
+                    self.auxLex += c
+                    self.addTokens("OPERADORES")
+            elif self.state == 17:
+                if c == "|":
+                    self.auxLex += c
+                    self.addTokens("OPERADORES")
+            elif self.state == 18:
+                if c == "&":
+                    self.auxLex += c
+                    self.addTokens("OPERADORES")
+            elif self.state == 19:
+                if c == "+":
+                    self.auxLex += c
+                    self.addTokens("OPERADORES")
+                elif c == "=":
+                    self.auxLex += c
+                    self.addTokens("OPERADORES")
+            elif self.state == 20:
+                if c == "=":
+                    self.auxLex += c
+                    self.addTokens("OPERADORES")
+            elif self.state == 21:
+                self.auxLex += c
+                self.addTokens("OPERADORES")
+            elif self.state == 22:
+                self.auxLex += c
+                self.addTokens("OPERADORES")
+            elif self.state == 23:
+                if c == "*":
+                    self.auxLex += c
+                    self.state = 24
+            
+            elif self.state == 24:
+                if not (c == '*'):
+                    self.auxLex += c
+                    self.state = 24
+                else:
+                    self.auxLex += c
+                    self.state = 25
+                                 
+            elif self.state == 25:
+                if not (c == "/"):
+                    self.auxLex += c
+                    self.state = 25
+                else:
+                    self.auxLex += c
+                    self.addTokens("COMENTARIOS")
+        self.addTokens("SIMBOLOACEPTACION")
+    
     def addTokens(self, Type):
         myListTokens.InsertEnd(TokensJS(self.auxLex,Type,self.column,self.row))
         self.auxLex = ""
         self.state = 0
-    
+
+    def addColores(self, Type):
+        myListColores.InsertEnd(TokensJS(self.auxLex,Type,self.column,self.row))
+        self.auxLex = ""
+        self.state = 0
+
     def addTokensErros(self):
         myListErrors.InsertEnd(TokensJS(self.auxLex,"CARACTER DESCONOCIDO",self.column,self.row))
         self.auxLex = ""
         self.state = 0
+    
 
 
-myAnalisis = AnalizadorLexicoJS()
 
 
 
-prueba = """//   PATHL: /dsadsa/\n
-//sdadsak\n
-// PATHW: c:\\usuarios\\user\\documents\\output\\js\n"""
-myAnalisis.analizadorJS(prueba)
-myListTokens.listPrint()
 
 def reportHTMLTokens():
-    printval = myListTokens.headval
-    counter = 1
-    with open('ReportTokensJS.html', 'w') as myFile:
+        xa = myListTokens.headval
+        counter = 1
+        with open('ReportTokensJS.html', 'w') as myFile:
             myFile.write('<html>')
             myFile.write('<body bgcolor=#1DF1F9>')
             myFile.write('<Center><h1>ANALIZADOR LEXICO JS</h1></Center>')
@@ -422,16 +921,16 @@ def reportHTMLTokens():
             myFile.write('<TH> Columna </TH>')
             myFile.write('<TH> Fila </TH>')
             myFile.write('</TR>')
-            while printval is not None:
+            while xa is not None:
                 myFile.write('<TR>')
                 myFile.write('<TH> ' + str(counter) + ' </TH>')
-                myFile.write('<TH> ' + printval.getToken().tipo + ' </TH>')
-                myFile.write('<TH> ' + printval.getToken().lex + ' </TH>')
-                myFile.write('<TH> ' + str(printval.getToken().columna) + ' </TH>')
-                myFile.write('<TH> ' + str(printval.getToken().fila) + ' </TH>')
+                myFile.write('<TH> ' + xa.getToken().getTipo() + ' </TH>')
+                myFile.write('<TH> ' + xa.getToken().getLex() + ' </TH>')
+                myFile.write('<TH> ' + str(xa.getToken().getColumna()) + ' </TH>')
+                myFile.write('<TH> ' + str(xa.getToken().getFila()) + ' </TH>')
                 myFile.write("</TR>");
                 counter += 1
-                printval = printval.next
+                xa = xa.next
             myFile.write('</body>')
             myFile.write('</html>')
 
@@ -467,5 +966,4 @@ def reportHTMLTokensErrors():
             myFile.write('</body>')
             myFile.write('</html>')
 
-reportHTMLTokens()
-reportHTMLTokensErrors()
+

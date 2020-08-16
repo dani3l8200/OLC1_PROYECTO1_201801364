@@ -5,6 +5,7 @@ class Node():
     def __init__(self,Token):
         self.data = Token
         self.next = None
+        
     def getToken(self):
         return self.data
     
@@ -12,21 +13,44 @@ class Node():
 class SingleLinkedList():
     def __init__(self):
         self.headval = None
-
+        self.cont = 0
     def InsertEnd(self,value):
         newNode = Node(value)
         if self.headval is None:
             self.headval = newNode
+            self.cont += 1
             return
         laste = self.headval
         while(laste.next):
             laste = laste.next
         laste.next = newNode
+        self.cont += 1
 
     def InsertBegin(self,value):
         newNode = Node(value)
         newNode.next = self.headval
         self.headval = newNode
+        self.cont += 1
+
+    def __len__(self):
+        return self.cont
+
+    def __getitem__(self, i):
+        if i >= len(self):
+            raise IndexError("Index out of range.")
+
+        current = self.headval
+        for _ in range(i):
+            current = current.next
+
+        return current
+        
+    def __iter__(self):
+        current = self.headval
+
+        while current:
+            yield current
+            current = current.next
 
     def RemoveItem(self,key):
         headVal = self.headval
@@ -47,36 +71,10 @@ class SingleLinkedList():
         
         prev.next = headVal.next
         headVal = None
+    
 
     def listPrint(self):
         printval = self.headval
         while printval is not None:
-            print(printval.getToken().lex + " " + printval.getToken().tipo, end='\n')
+            print(printval.data, end='\n')
             printval = printval.next
-
-    def reportHTMLTokens(self):
-        printval = self.headval
-        with open('ReportTokensJS.html', 'w') as myFile:
-            myFile.write('<html>')
-            myFile.write('<body bgcolor=#1DF1F9>')
-            myFile.write('<Center><h1>ANALIZADOR LEXICO JS</h1></Center>')
-            myFile.write('<Center><TABLE border = 3.5 bordercolor = black bgcolor = #B4F91D></Center>')
-            myFile.write('<TR>')
-            myFile.write('<Center><TH COLSPAN = 4 > Tabla de Tokens Validos </TH></Center>')
-            myFile.write('</TR>')
-            myFile.write('<TR>')
-            myFile.write('<TH> TOKEN </TH>')
-            myFile.write('<TH> Lexema </TH>')
-            myFile.write('<TH> Columna </TH>')
-            myFile.write('<TH> Fila </TH>')
-            myFile.write('</TR>')
-            while printval is not None:
-                myFile.write('<TR>')
-                myFile.write('<TH> ' + printval.getToken().tipo + ' </TH>')
-                myFile.write('<TH> ' + printval.getToken().lex + ' </TH>')
-                myFile.write('<TH> ' + str(printval.getToken().columna) + ' </TH>')
-                myFile.write('<TH> ' + str(printval.getToken().fila) + ' </TH>')
-                myFile.write("</TR>");
-                printval = printval.next
-            myFile.write('</body>')
-            myFile.write('</html>')

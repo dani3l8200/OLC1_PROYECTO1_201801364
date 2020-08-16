@@ -67,7 +67,7 @@ class TokensJS:
         if self.lex: return f'Token: { self.tipo} Lexema: {self.lex} Columna: {self.columna} Fila: {self.fila}'
         return f'{self.tipo}'
     def getLex(self):
-        return self.__lex
+        return self.lex
     def setLex(self,lex):
         self.lex = lex
     def getTipo(self):

@@ -3,6 +3,7 @@ from TokensJS import *
 from Error import * 
 from simpleList import *
 listErrorSintactico = SingleLinkedList()
+
 class SintacticoJS:
     indice = 0
     preaAnalisis = None
@@ -13,6 +14,7 @@ class SintacticoJS:
         self.preaAnalisis = ListTokens[self.indice]
         self.inicio()
         self.Parea("SIMBOLOACEPTACION")
+            
     
     def inicio(self):
         self.Lista()
@@ -22,15 +24,12 @@ class SintacticoJS:
         self.ListaP()
     
     def ListaP(self):
-        if (self.preaAnalisis.getToken().getTipo() == NUMEROS or self.preaAnalisis.getToken().getTipo() == ID 
-            or self.preaAnalisis.getToken().getTipo() == S_PARENTESIS_A or self.preaAnalisis.getToken().getTipo() == "DECIMAL"):
-            self.Expresion()
+        if not (self.preaAnalisis.getToken().getTipo() == "SIMBOLOACEPTACION"):
+            self.Parea("NUEVA_EXPRESION")
+            self.Expresion() 
             self.ListaP()
         else:
-            pass
-    
-
-       
+            pass 
     def Expresion(self):
         self.E()
 
@@ -45,10 +44,10 @@ class SintacticoJS:
             self.EP()
         elif self.preaAnalisis.getToken().getTipo() == S_MENOS:
             self.Parea(S_MENOS)
-            self.T()
+            self. T()
             self.EP()
         else:
-            pass
+            pass      
     
     def T(self):
         self.F()
@@ -74,11 +73,12 @@ class SintacticoJS:
         elif self.preaAnalisis.getToken().getTipo() == ID:
             self.Parea(ID)
         elif self.preaAnalisis.getToken().getTipo() == S_PARENTESIS_A:
-            self.Parea(S_PARENTESIS_A)
-            self.E()
-            self.Parea(S_PARENTESIS_C)
+                self.Parea(S_PARENTESIS_A)
+                self.E()
+                self.Parea(S_PARENTESIS_C)
+          
         else:
-            self.addError(self.preaAnalisis.getToken().getFila(),self.preaAnalisis.getToken().getColumna(),self.preaAnalisis.getToken().getTipo(),"Was expected 'parentesis izquierdo | digito | id'")
+            self.addError(self.preaAnalisis.getToken().getFila(),self.preaAnalisis.getToken().getColumna(),"No Aceptado",self.CadenaCompleta(self.listTokens))
             
     
     def Parea(self,Tipo):
@@ -94,11 +94,19 @@ class SintacticoJS:
                     self.indice += 1
                     self.preaAnalisis = self.listTokens[self.indice]
             else:
-                self.addError(self.preaAnalisis.getToken().getFila(),self.preaAnalisis.getToken().getColumna(),self.preaAnalisis.getToken().getTipo(),"Was Expected '"+ Tipo +"'")
-                self.errorSintactico = True
+                self.addError(self.preaAnalisis.getToken().getFila(),self.preaAnalisis.getToken().getColumna(),"No Aceptado",self.CadenaCompleta(self.listTokens))
+    
 
     def addError(self,row,column,chain,description):
         listErrorSintactico.InsertEnd(Error(chain,description,column,row))
+
+    def CadenaCompleta(self,mylist):
+        xa = mylist.headval
+        aux = ""
+        while xa is not None: 
+            aux += xa.getToken().getLex()
+            xa = xa.next
+        return aux
 
     def ReportHTMLSintactico(self):
         xa = listErrorSintactico.headval
@@ -113,8 +121,8 @@ class SintacticoJS:
             myFile.write('</TR>')
             myFile.write('<TR>')
             myFile.write('<TH> ID </TH>')
-            myFile.write('<TH> Token Esperado</TH>')
-            myFile.write('<TH> Descripcion Error  </TH>')
+            myFile.write('<TH> Operacion Aritmetica</TH>')
+            myFile.write('<TH> Valido  </TH>')
             myFile.write('<TH> Columna </TH>')
             myFile.write('<TH> Fila </TH>')
             myFile.write('</TR>')

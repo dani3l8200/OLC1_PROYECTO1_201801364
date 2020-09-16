@@ -1,6 +1,6 @@
 from TokensJS import *
 from simpleList import *
-
+import os 
 myListTokens = SingleLinkedList()
 myListErrors = SingleLinkedList()
 myListColores = SingleLinkedList()
@@ -54,15 +54,13 @@ class AnalizadorLexicoJS:
         elif self.auxLex == "Math":
             return "RESERVADA"
         else:
-            return ID
+            return "ID"
     
     def analizadorColoresJS(self,entra):
         entra += "#"
         aux = ''
-        extra = ''
         for i, c in enumerate(entra):
             self.letra = entra[i]
-
             if self.state == 0:
 
                 if c == '\t' or c == '\r' or c == '\b' or c == '\f' or c == ' ':
@@ -108,7 +106,7 @@ class AnalizadorLexicoJS:
                 elif c == chr(92):
                     self.auxLex += c
                     self.column += 1
-                    self.addColores(S_DIAGONALINVERTIDA)
+                    self.addColores("OPERADORES")
                 
                 elif c == "=":
                     self.auxLex += c
@@ -116,9 +114,13 @@ class AnalizadorLexicoJS:
                     self.addColores("OPERADORES")
                 
                 elif c == "'":
+                    aux = entra[i+1]
                     self.auxLex += c
                     self.column += 1
-                    self.state = 3
+                    if not (aux == "'"):
+                        self.state = 3
+                    elif aux == "'":
+                        self.state = 4
 
                 elif c == "(":
                     self.auxLex += c
@@ -187,9 +189,16 @@ class AnalizadorLexicoJS:
                         self.state = 19
 
                 elif c == "&":
-                    self.auxLex += c
-                    self.column += 1
-                    self.state = 18
+                    aux = entra[i+1]
+                    if aux == "&":
+                        self.auxLex += c
+                        self.column += 1
+                        self.state = 18
+                    else:
+                        self.auxLex += c
+                        self.addColores("OTROS")
+                    
+                    
                 
                 elif c == "|":
                     self.auxLex += c
@@ -240,11 +249,12 @@ class AnalizadorLexicoJS:
                         self.state = 16
 
                 else:
-                      if c == "#":
-                          print("se finalizo el analisis lexico")
-                      else:
-                          self.auxLex += c
-                          self.addColores("OTROS")
+                    print(len(entra))
+                    if c == "#" and i == (len(entra) - 1):
+                        print("se finalizo el analisis lexico")
+                    else:
+                        self.auxLex += c
+                        self.addColores("OTROS")
                           
             
             elif self.state == 1:
@@ -252,7 +262,7 @@ class AnalizadorLexicoJS:
                 if c.isalpha():
                     self.auxLex += c
                     self.state = 1
-                    if(not (aux.isalpha() or aux.isnumeric())):
+                    if(not (aux.isalpha() or aux.isnumeric() or aux == "_")):
                         aux1 = self.VerifyReservedToken()
                         
                         self.addColores(aux1)
@@ -262,6 +272,12 @@ class AnalizadorLexicoJS:
                     if(not (aux.isalpha() or aux.isnumeric())):
                         aux1 = self.VerifyReservedToken()
                         
+                        self.addColores(aux1)
+                elif c == "_":
+                    self.auxLex += c
+                    self.state =1
+                    if(not (aux.isalpha() or aux.isnumeric())):
+                        aux1 = self.VerifyReservedToken()
                         self.addColores(aux1)
             
             elif self.state == 2:
@@ -277,16 +293,25 @@ class AnalizadorLexicoJS:
                 aux = entra[i+1]
                 if c.isalpha():
                     self.auxLex += c
-                    self.state = 4
+                    self.state = 3
+                    if(aux == "'"):
+                        self.state = 4
                 elif c.isnumeric():
                     self.auxLex += c
-                    self.state = 4
+                    self.state = 3
+                    if(aux == "'"):
+                        self.state = 4
                 elif c == '\t' or c == '\r' or c == '\b' or c == '\f' or c == ' ':
                     self.auxLex += c
-                    self.state = 4
-                elif c.isascii():
+                    self.state = 3
+                elif (  c == chr(33) or c == chr(35) or c == chr(36) or c == chr(37) or c == chr(38) or c == chr(39) or c == chr(40) or c == chr(41) or c == chr(42) 
+                     or c == chr(43) or c == chr(44) or c == chr(45) or c == chr(46) or c == chr(47) or c == chr(58) or c == chr(59) or c == chr(60) or c == chr(61)
+                     or c == chr(62) or c == chr(63) or c == chr(64) or c == chr(91) or c == chr(92) or c == chr(93) or c == chr(94) or c == chr(95) or c == chr(96)
+                     or c == chr(93) or c == chr(94) or c == chr(95)):
                     self.auxLex += c
-                    self.state = 4
+                    self.state = 3
+                    if(aux == "'"):
+                        self.state = 4
 
             elif self.state == 4:
                 aux = entra[i+1]
@@ -378,7 +403,7 @@ class AnalizadorLexicoJS:
 
             elif self.state == 10:
                 aux = entra[i+1]
-                if c == ":":
+                if c == ":" or c == "-" or c == ">" or c.isascii():
                     self.auxLex += c
                     if aux == '\t' or aux == '\r' or aux == '\b' or aux == '\f' or aux == ' ':
                         self.state = 10
@@ -386,6 +411,8 @@ class AnalizadorLexicoJS:
                         self.state = 11
                     elif aux == "c":
                         self.state = 13
+                    else:
+                        self.state = 10
                 elif c == '\t' or c == '\r' or c == '\b' or c == '\f' or c == ' ':
                     self.auxLex += c
                     if aux == '\t' or aux == '\r' or aux == '\b' or aux == '\f' or aux == ' ':
@@ -475,6 +502,7 @@ class AnalizadorLexicoJS:
         entra += "#"
         aux = ''
         extra = ''
+        ruta = ''
         for i, c in enumerate(entra):
             self.letra = entra[i]
 
@@ -488,7 +516,7 @@ class AnalizadorLexicoJS:
                     self.state = 0
                     self.column = 0
 
-                elif c.isalpha():
+                elif c.isalpha() or c == "_":
                     aux = entra[i+1]
                     self.auxLex += c
                     self.state = 1
@@ -496,8 +524,8 @@ class AnalizadorLexicoJS:
                     if(not (aux.isalpha())):
                         aux1 = self.VerifyReservedToken()
                         self.addTokens(aux1)
-                        
                 elif c.isdigit():
+                        
                     aux = entra[i+1]
                     self.auxLex += c
                     self.state = 2
@@ -519,7 +547,7 @@ class AnalizadorLexicoJS:
                 elif c == chr(92):
                     self.auxLex += c
                     self.column += 1
-                    self.addTokens(S_DIAGONALINVERTIDA)
+                    self.addTokens("OPERADORES")
                 
                 elif c == "=":
                     self.auxLex += c
@@ -527,9 +555,13 @@ class AnalizadorLexicoJS:
                     self.addTokens("OPERADORES")
                 
                 elif c == "'":
+                    aux = entra[i+1]
                     self.auxLex += c
                     self.column += 1
-                    self.state = 3
+                    if not (aux == "'"):
+                        self.state = 3
+                    elif aux == "'":
+                        self.state = 4
 
                 elif c == "(":
                     self.auxLex += c
@@ -598,10 +630,15 @@ class AnalizadorLexicoJS:
                         self.state = 19
 
                 elif c == "&":
-                    self.auxLex += c
-                    self.column += 1
-                    self.state = 18
-                
+                    aux = entra[i+1]
+                    if aux == "&":
+                        self.auxLex += c
+                        self.column += 1
+                        self.state = 18
+                    else:
+                        self.auxLex += c
+                        self.addTokensErros()
+                        
                 elif c == "|":
                     self.auxLex += c
                     self.column += 1
@@ -651,7 +688,7 @@ class AnalizadorLexicoJS:
                         self.state = 16
 
                 else:
-                      if c == "#":
+                      if c == "#" and i == (len(entra)-1):
                           print("se finalizo el analisis lexico")
                       else:
                           self.auxLex += c
@@ -663,16 +700,22 @@ class AnalizadorLexicoJS:
                 if c.isalpha():
                     self.auxLex += c
                     self.state = 1
-                    if(not (aux.isalpha() or aux.isnumeric())):
+                    if(not (aux.isalpha() or aux.isnumeric() or aux == "_")):
                         aux1 = self.VerifyReservedToken()
                         
                         self.addTokens(aux1)
                 elif c.isnumeric():
                     self.auxLex += c
                     self.state =1
-                    if(not (aux.isalpha() or aux.isnumeric())):
+                    if(not (aux.isalpha() or aux.isnumeric()) or aux == "_"):
                         aux1 = self.VerifyReservedToken()
                         
+                        self.addTokens(aux1)
+                elif c == "_":
+                    self.auxLex += c
+                    self.state =1
+                    if(not (aux.isalpha() or aux.isnumeric()) or aux == "_"):
+                        aux1 = self.VerifyReservedToken()
                         self.addTokens(aux1)
             
             elif self.state == 2:
@@ -688,16 +731,25 @@ class AnalizadorLexicoJS:
                 aux = entra[i+1]
                 if c.isalpha():
                     self.auxLex += c
-                    self.state = 4
+                    self.state = 3
+                    if(aux == "'"):
+                        self.state = 4
                 elif c.isnumeric():
                     self.auxLex += c
-                    self.state = 4
+                    self.state = 3
+                    if(aux == "'"):
+                        self.state = 4
                 elif c == '\t' or c == '\r' or c == '\b' or c == '\f' or c == ' ':
                     self.auxLex += c
-                    self.state = 4
-                elif c.isascii():
+                    self.state = 3
+                elif (  c == chr(33) or c == chr(35) or c == chr(36) or c == chr(37) or c == chr(38) or c == chr(39) or c == chr(40) or c == chr(41) or c == chr(42) 
+                     or c == chr(43) or c == chr(44) or c == chr(45) or c == chr(46) or c == chr(47) or c == chr(58) or c == chr(59) or c == chr(60) or c == chr(61)
+                     or c == chr(62) or c == chr(63) or c == chr(64) or c == chr(91) or c == chr(92) or c == chr(93) or c == chr(94) or c == chr(95) or c == chr(96)
+                     or c == chr(93) or c == chr(94) or c == chr(95)):
                     self.auxLex += c
-                    self.state = 4
+                    self.state = 3
+                    if(aux == "'"):
+                        self.state = 4
 
             elif self.state == 4:
                 aux = entra[i+1]
@@ -741,88 +793,24 @@ class AnalizadorLexicoJS:
                     self.state = 8
 
             elif self.state == 8:
-                aux = entra[i+1]
-                if c.isalpha():
-                    extra += c
-                    self.auxLex += c
-                    self.state = 8
-                    if aux == "\n":
-                        self.state = 9
-                    elif "PATHL" in extra:
-                        self.state = 10
-                    elif "PATHW" in extra:
-                        self.state = 10
-                elif c.isnumeric():
-                    extra += c
-                    self.auxLex += c
-                    self.state = 8
-                    if aux == "\n":
-                        self.state = 9
-                    elif extra == "PATHL":
-                        self.state = 8
-                    elif extra == "PATHW":
-                        self.state = 8
-                elif c == '\t' or c == '\r' or c == '\b' or c == '\f' or c == ' ':
-                    extra += c
-                    self.auxLex += c
-                    self.state = 8
-                    if aux == "\n":
-                        self.state = 9
-                    elif "PATHL" in extra:
-                        self.state = 10
-                    elif "PATHW" in extra:
-                        self.state = 10
-                elif c.isascii():
-                    extra += c
-                    self.auxLex += c
-                    self.state = 8
-                    if aux == "\n":
-                        self.state = 9
-                    elif "PATHL" == extra:
-                        self.state = 8
-                    elif "PATHW" == extra:
-                        self.state = 8
-
-            elif self.state == 9:
-                self.auxLex += c
-                self.addTokens("COMENTARIOS")
-
-            elif self.state == 10:
-                aux = entra[i+1]
-                if c == ":":
-                    self.auxLex += c
-                    if aux == '\t' or aux == '\r' or aux == '\b' or aux == '\f' or aux == ' ':
-                        self.state = 10
-                    elif aux == "/":
-                        self.state = 11
-                    elif aux == "c":
-                        self.state = 13
-                elif c == '\t' or c == '\r' or c == '\b' or c == '\f' or c == ' ':
-                    self.auxLex += c
-                    if aux == '\t' or aux == '\r' or aux == '\b' or aux == '\f' or aux == ' ':
-                        self.state = 10
-                    elif aux == "/":
-                        self.state = 11
-                    elif aux == "c":
-                        self.state = 13
-            elif self.state == 11:
-                if c == "/":
-                    self.auxLex += c
-                    self.state = 12
-            elif self.state == 12:
                 if not (c == "\n"):
                     self.auxLex += c
-                    self.state = 12
-                else:
+                    ruta += c
+                    self.state = 8
+                elif "PATHL" in ruta and c == '\n':
                     self.auxLex += c
                     self.addTokens("COMENTARIO_ESPECIAL")
-            elif self.state == 13:
-                if not (c == "\n"):
-                    self.auxLex += c
-                    self.state = 13
-                else:
+                    print(ruta)
+                    ruta = ''
+                elif "PATHW"in ruta and c == '\n':
                     self.auxLex += c
                     self.addTokens("COMENTARIO_ESPECIAL")
+                    print(ruta)
+                    ruta = ''
+                else:
+                   self.auxLex += c
+                   self.addTokens("COMENTARIOS")
+               
             elif self.state == 14:
                 if c == "-":
                     self.auxLex += c
@@ -887,6 +875,32 @@ class AnalizadorLexicoJS:
         self.auxLex = ""
         self.state = 0
 
+    def Graficar(self):
+        a = open('AutomataJS.dot',"w")
+        a.write('digraph finite_state_machine {\n\t')
+        a.write('rankdir=LR;\n\t')
+        a.write('size=\"8,5\"\n\t')
+        a.write('graph[bgcolor = lemonchiffon1, label=\"AFD\"];\n\t')
+        a.write('node [shape=record];a [label="{ <data> Expresiones Regulares\\nIdentificador: ID(ID\|Digito)*\\nNumeros o Decimal: Digito+(.Digito+)?\\nComentario Unilinea: (//)(any)*(line break)}"];\n\t')
+        a.write('node [shape = doublecircle,fillcolor=olivedrab1,style=filled,fixedsize=true]; S1, S3, S4, S7;\n\t')
+        a.write('node [shape= rarrow,fillcolor=gold,style=filled]; start; \n\t')
+        a.write('node [shape = circle,fillcolor=white,style=filled];\n\t')
+        a.write('start -> S0;\n\t')
+        a.write('S0 -> S1 [label = \"Digito\" ];\n\t')
+        a.write('S1 -> S1 [ label = \"Digito\" ];\n\t')
+        a.write('S1 -> S2 [ label = \".\" ];\n\t')
+        a.write('S2 -> S3 [ label = \"Digito\"];\n\t')
+        a.write('S3 -> S3 [ label = \"Digito\"];\n\t')
+        a.write('S0 -> S4 [ label = \"ID\"];\n\t')
+        a.write('S4 -> S4 [ label = \"ID, Digito\"];\n\t')
+        a.write('S0 -> S5 [label = \"/\"];\n\t')
+        a.write('S5 -> S6 [label = \"/\"];\n\t')
+        a.write('S6 -> S6 [label = \"any content\"];\n\t')
+        a.write('S6 -> S7 [label = \"line break\"];\n')
+        a.write('}')
+        a.close()
+        os.system('dot -Tpdf AutomataJS.dot -o AutomataJS.pdf')
+        os.system('xdg-open AutomataJS.pdf')
     def addColores(self, Type):
         myListColores.InsertEnd(TokensJS(self.auxLex,Type,self.column,self.row))
         self.auxLex = ""
@@ -947,7 +961,7 @@ def reportHTMLTokensErrors():
             myFile.write('<Center><TH COLSPAN = 4 > Tabla de Tokens Invalidos </TH></Center>')
             myFile.write('</TR>')
             myFile.write('<TR>')
-            myFile.write('<TH> ID </TH>')
+            myFile.write('<TH> ID < </TH>')
             myFile.write('<TH> TOKEN </TH>')
             myFile.write('<TH> Lexema </TH>')
             myFile.write('<TH> Columna </TH>')
@@ -965,5 +979,4 @@ def reportHTMLTokensErrors():
                 printval = printval.next
             myFile.write('</body>')
             myFile.write('</html>')
-
 

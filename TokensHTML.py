@@ -1,4 +1,4 @@
-class TokensCSS:
+class TokensHTML:
     def __init__(self):
         pass
     def __init__(self,lex,tipo,columna,fila):

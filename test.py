@@ -1,17 +1,15 @@
-from tkinter import *
+import tkinter as tk
 
-root = Tk()
+root = tk.Tk()
 
-text = Text(root)
-text.insert(INSERT, "Hello, world!\n")
-text.insert(END, "This is a phrase.\n")
-text.insert(END, "Bye bye...")
-text.pack(expand=1, fill=BOTH)
+txt = tk.Text(root)
+txt.pack()
 
-# adding a tag to a part of text specifying the indices
-text.tag_configure("red", foreground="red")
+txt.tag_config('warning',foreground="red")
 
-# apply the tag "red" 
-text.highlight_pattern("word", "red")
+txt.insert('end', "Hello\n")
+txt.insert('end', "Alert #1\n", 'warning')
+txt.insert('end', "World\n")
+txt.insert('end', "Alert #2\n", 'warning')
 
 root.mainloop()

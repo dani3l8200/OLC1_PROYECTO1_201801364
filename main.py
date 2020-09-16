@@ -7,12 +7,16 @@ from tkinter import scrolledtext
 from tkinter.font import Font
 from LexicoJS import * 
 from LexicoHTML import * 
+from LexicoSJS import * 
 
 aver = ""
 AnalizadorJS = AnalizadorLexicoJS()
 coloresJS = AnalizadorLexicoJS()
 AnalizadorHTML = AnalizadorLexicoHTML()
 coloresHTML = AnalizadorLexicoHTML()
+AnalizadorLJS = AnalizadorLexicoSJS()
+coloresSJS = AnalizadorLexicoSJS()
+
 class GUI:
     archivo = ""
     def __init__(self, window):
@@ -87,7 +91,7 @@ class GUI:
         return
 
     def fileMenuCSS(self):
-        filename = askopenfilename() 
+        filename = askopenfilename(title = "Abrir Archivo", initialdir = "/home/dani3l8200/Descargas") 
         archivo = open(filename,"r")
         texto = archivo.read()
         archivo.close()
@@ -104,10 +108,11 @@ class GUI:
         return
 
     def fileMenuSintactico(self):
-        filename = askopenfilename() 
+        filename = askopenfilename(title = "Abrir Archivo", initialdir = "/home/dani3l8200/Descargas") 
         archivo = open(filename,"r")
         texto = archivo.read()
         archivo.close()
+        self.pintarColoresSJS(texto)
         messagebox.showinfo("CARGA","SE CARGO CORRECTAMENTE EL ARCHIVO SINTACTICO")
         return
     #END
@@ -270,7 +275,53 @@ class GUI:
             printval = printval.next
         return
 
+    def pintarColoresSJS(self, entrada):
+        coloresSJS.AnalizadorSJSColores(entrada)
+        printval  =  listTokensCSintactico.headval
+        while printval is not None:
+            test = ""
+            if printval.getToken().getTipo() == "ID":
     
+                self.entrada.tag_config('variables',foreground="green")
+
+                test += printval.getToken().getLex()
+
+                self.entrada.insert(INSERT,test,'variables')
+
+
+            elif printval.getToken().getTipo() == "ESPACIOS":
+
+                test += printval.getToken().getLex()
+
+                self.entrada.insert(INSERT,test)
+            
+            elif printval.getToken().getTipo() == "OPERADOR":
+            
+                self.entrada.tag_config('operadores',foreground="dark orange")
+
+                test += printval.getToken().getLex()
+
+                self.entrada.insert(INSERT,test,'operadores')
+
+            elif printval.getToken().getTipo() == "ERRORES":
+                
+                self.entrada.tag_config('errores',foreground="black",background="sienna2")
+
+                test += printval.getToken().getLex()
+
+                self.entrada.insert(INSERT,test,'errores')
+            
+            elif printval.getToken().getTipo() == "NUMEROS" or printval.getToken().getTipo() == "DECIMAL":
+    
+                self.entrada.tag_config('bool_int',foreground="blue")
+
+                test += printval.getToken().getLex()
+
+                self.entrada.insert(INSERT,test,'bool_int')
+
+            printval = printval.next
+        return
+
 
     def analizar(self):
         texto = self.entrada.get("1.0",END)

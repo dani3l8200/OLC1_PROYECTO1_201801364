@@ -2,9 +2,9 @@ from Error import *
 from simpleList import * 
 from TokensCSS import *
 from Bitacora import * 
-listTokensL = SingleLinkedList()
-listTokensE = SingleLinkedList()
-listReportB = SingleLinkedList()
+listTokensLCSS = SingleLinkedList()
+listTokensECSS = SingleLinkedList()
+listReportBCSS = SingleLinkedList()
 
 class AnalizadorLexicoCSS:
     state = 0
@@ -128,7 +128,9 @@ class AnalizadorLexicoCSS:
     def AnalizadorCSS(self,entra):
         entra += "~"
         aux = ""
+        self.auxLex = "ESTADO INICIAL"
         self.ReportBitacora(0,self.myIterator,False)
+        self.auxLex = ""
         for i, c in enumerate(entra):
             if self.state == 0:
                 if c == "\t" or c == "\r" or c == "\b" or c == "\f" or c == " ":
@@ -148,7 +150,9 @@ class AnalizadorLexicoCSS:
                         self.ReportBitacora(21,self.myIterator,True)
                         self.myIterator = 0
                         self.addTokens("OPERADOR")
+                        self.auxLex = "ESTADO INICIAL"
                         self.ReportBitacora(0,self.myIterator,False)
+                        self.auxLex = ""
                     elif aux == "*":
                         self.myIterator += 1
                         self.ReportBitacora(1,self.myIterator,False)
@@ -161,7 +165,9 @@ class AnalizadorLexicoCSS:
                     self.ReportBitacora(11,self.myIterator,True)
                     self.myIterator = 0
                     self.addTokens("OPERADOR")
+                    self.auxLex = "ESTADO INICIAL"
                     self.ReportBitacora(0,self.myIterator,False)
+                    self.auxLex = ""
                
                 elif c == "{":
                     self.auxLex += c
@@ -170,7 +176,9 @@ class AnalizadorLexicoCSS:
                     self.ReportBitacora(12,self.myIterator,True)
                     self.myIterator = 0
                     self.addTokens("OTROS")
+                    self.auxLex = "ESTADO INICIAL"
                     self.ReportBitacora(0,self.myIterator,False)
+                    self.auxLex = ""
 
                 elif c == "}":
                     self.auxLex += c
@@ -179,7 +187,9 @@ class AnalizadorLexicoCSS:
                     self.ReportBitacora(13,self.myIterator,True)
                     self.myIterator = 0
                     self.addTokens("OTROS")
+                    self.auxLex = "ESTADO INICIAL"
                     self.ReportBitacora(0,self.myIterator,False)
+                    self.auxLex = ""
 
                 elif c == ":":
                     self.auxLex += c
@@ -188,7 +198,9 @@ class AnalizadorLexicoCSS:
                     self.ReportBitacora(14,self.myIterator,True)
                     self.myIterator = 0
                     self.addTokens("OTROS")
+                    self.auxLex = "ESTADO INICIAL"
                     self.ReportBitacora(0,self.myIterator,False)
+                    self.auxLex = ""
 
 
                 elif c == ";":
@@ -198,7 +210,9 @@ class AnalizadorLexicoCSS:
                     self.ReportBitacora(15,self.myIterator,True)
                     self.myIterator = 0
                     self.addTokens("OTROS")
+                    self.auxLex = "ESTADO INICIAL"
                     self.ReportBitacora(0,self.myIterator,False)
+                    self.auxLex = ""
 
                 elif c == ",":
                     self.auxLex += c
@@ -207,7 +221,9 @@ class AnalizadorLexicoCSS:
                     self.ReportBitacora(16,self.myIterator,True)
                     self.myIterator = 0
                     self.addTokens("OTROS")
+                    self.auxLex = "ESTADO INICIAL"
                     self.ReportBitacora(0,self.myIterator,False)
+                    self.auxLex = ""
 
                 elif c == "(":
                     self.auxLex += c
@@ -216,7 +232,9 @@ class AnalizadorLexicoCSS:
                     self.ReportBitacora(17,self.myIterator,True)
                     self.myIterator = 0
                     self.addTokens("OPERADOR")
+                    self.auxLex = "ESTADO INICIAL"
                     self.ReportBitacora(0,self.myIterator,False)
+                    self.auxLex = ""
 
 
                 elif c == ")":
@@ -226,6 +244,9 @@ class AnalizadorLexicoCSS:
                     self.ReportBitacora(18,self.myIterator,True)
                     self.myIterator = 0
                     self.addTokens("OPERADOR")
+                    self.auxLex = "ESTADO INICIAL"
+                    self.ReportBitacora(0,self.myIterator,False)
+                    self.auxLex = ""
 
                 elif c == "-":
                     self.auxLex += c
@@ -244,7 +265,9 @@ class AnalizadorLexicoCSS:
                         self.myIterator = 0
                         aux1 = self.VerifyReservedToken()
                         self.addTokens(aux1)
+                        self.auxLex = "ESTADO INICIAL"
                         self.ReportBitacora(0,self.myIterator,False)
+                        self.auxLex = ""
                     else:
                         self.state = 4
                         self.myIterator += 1
@@ -261,7 +284,9 @@ class AnalizadorLexicoCSS:
                         self.ReportBitacora(6,self.myIterator,True)
                         self.myIterator = 0
                         self.addTokens("NUMEROS")
+                        self.auxLex = "ESTADO INICIAL"
                         self.ReportBitacora(0,self.myIterator,False)
+                        self.auxLex = ""
                     else:
                         self.state = 6
                         self.myIterator += 1
@@ -274,7 +299,9 @@ class AnalizadorLexicoCSS:
                     self.ReportBitacora(19,self.myIterator,True)
                     self.myIterator = 0
                     self.addTokens("OTROS")
+                    self.auxLex = "ESTADO INICIAL"
                     self.ReportBitacora(0,self.myIterator,False)
+                    self.auxLex = ""
 
                 
                 elif c == '"':
@@ -291,11 +318,13 @@ class AnalizadorLexicoCSS:
                     self.ReportBitacora(20,self.myIterator,True)
                     self.myIterator = 0
                     self.addTokens("OTROS")
+                    self.auxLex = "ESTADO INICIAL"
                     self.ReportBitacora(0,self.myIterator,False)
+                    self.auxLex = ""
 
             
                 else:
-                    if c == "~":
+                    if c == "~" and i == (len(entra)-1):
                         print("se finalizo el analisis lexico")
                     else:
                         self.auxLex += c
@@ -332,7 +361,9 @@ class AnalizadorLexicoCSS:
                     self.ReportBitacora(3,self.myIterator,True)
                     self.myIterator = 0
                     self.addTokens("COMENTARIOS")
+                    self.auxLex = "ESTADO INICIAL"
                     self.ReportBitacora(0,self.myIterator,False)
+                    self.auxLex = ""
             
             elif self.state == 4:
                 aux = entra[i+1]
@@ -349,7 +380,9 @@ class AnalizadorLexicoCSS:
                         self.myIterator = 0
                         aux1 = self.VerifyReservedToken()
                         self.addTokens(aux1)
+                        self.auxLex = "ESTADO INICIAL"
                         self.ReportBitacora(0,self.myIterator,False)
+                        self.auxLex = ""
                     else:
                         self.myIterator += 1
                         self.ReportBitacora(4,self.myIterator,False)
@@ -362,7 +395,9 @@ class AnalizadorLexicoCSS:
                         self.myIterator = 0
                         aux1 = self.VerifyReservedToken()
                         self.addTokens(aux1)
+                        self.auxLex = "ESTADO INICIAL"
                         self.ReportBitacora(0,self.myIterator,False)
+                        self.auxLex = ""
                     else:
                         self.myIterator += 1
                         self.ReportBitacora(4,self.myIterator,False)
@@ -383,7 +418,9 @@ class AnalizadorLexicoCSS:
                         self.myIterator = 0
                         aux1 = self.VerifyReservedToken()
                         self.addTokens(aux1)
+                        self.auxLex = "ESTADO INICIAL"
                         self.ReportBitacora(0,self.myIterator,False)
+                        self.auxLex = ""
                     else:
                         self.myIterator += 1
                         self.ReportBitacora(5,self.myIterator,False)
@@ -405,7 +442,9 @@ class AnalizadorLexicoCSS:
                         self.ReportBitacora(6,self.myIterator,True)
                         self.myIterator = 0
                         self.addTokens("NUMEROS")
+                        self.auxLex = "ESTADO INICIAL"
                         self.ReportBitacora(0,self.myIterator,False)
+                        self.auxLex = ""
                     else:
                         self.myIterator += 1
                         self.ReportBitacora(6,self.myIterator,False)
@@ -427,7 +466,9 @@ class AnalizadorLexicoCSS:
                         self.ReportBitacora(7,self.myIterator,False)
                         self.myIterator = 0
                         self.addTokens("NUMEROS")
+                        self.auxLex = "ESTADO INICIAL"
                         self.ReportBitacora(0,self.myIterator,False)
+                        self.auxLex = ""
                     else:
                         self.myIterator += 1
                         self.ReportBitacora(7,self.myIterator,False)
@@ -440,7 +481,9 @@ class AnalizadorLexicoCSS:
                     self.ReportBitacora(8,self.myIterator,True)
                     self.myIterator = 0
                     self.addTokens("PORCENTAJE")
+                    self.auxLex = "ESTADO INICIAL"
                     self.ReportBitacora(0,self.myIterator,False)
+                    self.auxLex = ""
             
             
             elif self.state == 9:
@@ -479,42 +522,55 @@ class AnalizadorLexicoCSS:
                 self.auxLex += c
                 self.myIterator += 1
                 self.ReportBitacora(10,self.myIterator,True)
-                self.myIterator = 0
+                self.myIterator = 0 
                 self.addTokens("CONT_FOR_STRING")     
+                self.auxLex = "ESTADO INICIAL"
                 self.ReportBitacora(0,self.myIterator,False)
+                self.auxLex = ""
            
     def ReportBitacora(self,state,iteracion,aceptacion):
-        listReportB.InsertEnd(Bitacora(state,self.auxLex,iteracion,aceptacion))
+        listReportBCSS.InsertEnd(Bitacora(state,self.auxLex,iteracion,aceptacion))
 
 
     def addTokens(self, Type):
-        listTokensL.InsertEnd(TokensCSS(self.auxLex,Type,self.column,self.row))
+        listTokensLCSS.InsertEnd(TokensCSS(self.auxLex,Type,self.column,self.row))
         self.auxLex = ""
         self.state = 0
 
     def addErrors(self,Type):
-        listTokensE.InsertEnd(TokensCSS(self.auxLex,Type,self.column,self.row))
+        listTokensECSS.InsertEnd(TokensCSS(self.auxLex,Type,self.column,self.row))
         self.auxLex = ""
         self.state = 0
 
     def ReportTokensCSS(self):
-        printval = listTokensL.headval
+        printval = listTokensLCSS.headval
         counter = 1
         with open('ReportTokensCSS.html', 'w') as myFile:
-            myFile.write('<html>')
-            myFile.write('<body bgcolor=#FFDEAD>')
-            myFile.write('<Center><h1>ANALIZADOR LEXICO CSS</h1></Center>')
-            myFile.write('<Center><TABLE border = 3.5 bordercolor = black bgcolor = #fa9ef2></Center>')
-            myFile.write('<TR>')
-            myFile.write('<Center><TH COLSPAN = 5 > Tabla de Error Sintactico </TH></Center>')
+            myFile.write('<!DOCTYPE html>\n')
+            myFile.write('<html lang="en">\n')
+            myFile.write('<head>\n')
+            myFile.write('\t<title>Report Tokens CSS</title>\t\n')
+            myFile.write('<meta charset="utf-8">\n\t')
+            myFile.write('<meta name="viewport" content="width=device-width, initial-scale=1">\n\t')
+            myFile.write('<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">\n\t')
+            myFile.write('<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>\n\t')
+            myFile.write('<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>\n\t')
+            myFile.write('<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>\n\t')
+            myFile.write('</head>\n\t')
+            myFile.write('<body>\n\t')
+            myFile.write('<div class="container">\n\t')
+            myFile.write('<h1 style="text-align: center;">Report Tokens CSS</h1>\n\t')
+            myFile.write('<table class="table">\n\t')
+            myFile.write('<thead class="thead-dark">\n\t')
+            myFile.write('<tr>\n\t')    
+            myFile.write('<th>ID</th>')
+            myFile.write('<th>Token</th>')
+            myFile.write('<th> Lexema </th>')
+            myFile.write('<th> Columna </th>')
+            myFile.write('<th> Fila </th>')
             myFile.write('</TR>')
-            myFile.write('<TR>')
-            myFile.write('<TH> ID </TH>')
-            myFile.write('<TH> Token Esperado</TH>')
-            myFile.write('<TH> Descripcion Error  </TH>')
-            myFile.write('<TH> Columna </TH>')
-            myFile.write('<TH> Fila </TH>')
-            myFile.write('</TR>')
+            myFile.write('</thead>')
+            myFile.write('<tbody>')
             while printval is not None:
                 myFile.write('<TR>')
                 myFile.write('<TH> ' + str(counter) + ' </TH>')
@@ -525,27 +581,41 @@ class AnalizadorLexicoCSS:
                 myFile.write("</TR>");
                 counter += 1
                 printval = printval.next
+            myFile.write('</tbody>')
+            myFile.write('</table>')
+            myFile.write('</div>')
             myFile.write('</body>')
             myFile.write('</html>')
 
     def ReportTokensErrorCSS(self):
-        printval = listTokensE.headval
+        printval = listTokensECSS.headval
         counter = 1
         with open('ReportTokensCSSError.html', 'w') as myFile:
-            myFile.write('<html>')
-            myFile.write('<body bgcolor=#9efaf2>')
-            myFile.write('<Center><h1>ANALIZADOR LEXICO CSS ERRORES</h1></Center>')
-            myFile.write('<Center><TABLE border = 3.5 bordercolor = black bgcolor = #fa9ef2></Center>')
-            myFile.write('<TR>')
-            myFile.write('<Center><TH COLSPAN = 5 > Tabla de Error Sintactico </TH></Center>')
-            myFile.write('</TR>')
-            myFile.write('<TR>')
+            myFile.write('<!DOCTYPE html>\n')
+            myFile.write('<html lang="en">\n')
+            myFile.write('<head>\n')
+            myFile.write('\t<title>Report Errors CSS</title>\t\n')
+            myFile.write('<meta charset="utf-8">\n\t')
+            myFile.write('<meta name="viewport" content="width=device-width, initial-scale=1">\n\t')
+            myFile.write('<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">\n\t')
+            myFile.write('<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>\n\t')
+            myFile.write('<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>\n\t')
+            myFile.write('<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>\n\t')
+            myFile.write('</head>\n\t')
+            myFile.write('<body>\n\t')
+            myFile.write('<div class="container">\n\t')
+            myFile.write('<h1 style="text-align: center;">Report Errors CSS</h1>\n\t')
+            myFile.write('<table class="table">\n\t')
+            myFile.write('<thead class="thead-dark">\n\t')
+            myFile.write('<tr>\n\t') 
             myFile.write('<TH> ID </TH>')
-            myFile.write('<TH> Token Esperado</TH>')
-            myFile.write('<TH> Descripcion Error  </TH>')
+            myFile.write('<TH> Token</TH>')
+            myFile.write('<TH> Lexema  </TH>')
             myFile.write('<TH> Columna </TH>')
             myFile.write('<TH> Fila </TH>')
             myFile.write('</TR>')
+            myFile.write('</thead>')
+            myFile.write('<tbody>')
             while printval is not None:
                 myFile.write('<TR>')
                 myFile.write('<TH> ' + str(counter) + ' </TH>')
@@ -556,27 +626,41 @@ class AnalizadorLexicoCSS:
                 myFile.write("</TR>");
                 counter += 1
                 printval = printval.next
+            myFile.write('</tbody>')
+            myFile.write('</table>')
+            myFile.write('</div>')
             myFile.write('</body>')
             myFile.write('</html>')
 
     def ReportBitacoraCSS(self):
-        printval = listReportB.headval
+        printval = listReportBCSS.headval
         counter = 1
         with open('ReportBitacoraCCS.html', 'w') as myFile:
-            myFile.write('<html>')
-            myFile.write('<body bgcolor=#FFDEAD>')
-            myFile.write('<Center><h1>REPORTE BITACORA CSS</h1></Center>')
-            myFile.write('<Center><TABLE border = 3.5 bordercolor = black bgcolor = #fa9ef2></Center>')
-            myFile.write('<TR>')
-            myFile.write('<Center><TH COLSPAN = 5 > Tabla de Trasiciones Del Analizador Lexico </TH></Center>')
-            myFile.write('</TR>')
-            myFile.write('<TR>')
+            myFile.write('<!DOCTYPE html>\n')
+            myFile.write('<html lang="en">\n')
+            myFile.write('<head>\n')
+            myFile.write('\t<title>Report Bitacora CSS</title>\t\n')
+            myFile.write('<meta charset="utf-8">\n\t')
+            myFile.write('<meta name="viewport" content="width=device-width, initial-scale=1">\n\t')
+            myFile.write('<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">\n\t')
+            myFile.write('<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>\n\t')
+            myFile.write('<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>\n\t')
+            myFile.write('<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>\n\t')
+            myFile.write('</head>\n\t')
+            myFile.write('<body>\n\t')
+            myFile.write('<div class="container">\n\t')
+            myFile.write('<h1 style="text-align: center;">Report Bitacora CSS</h1>\n\t')
+            myFile.write('<table class="table">\n\t')
+            myFile.write('<thead class="thead-dark">\n\t')
+            myFile.write('<tr>\n\t') 
             myFile.write('<TH> ID </TH>')
             myFile.write('<TH> ESTADO </TH>')
             myFile.write('<TH> TOKEN/ERROR  </TH>')
             myFile.write('<TH> ITERACIONES </TH>')
             myFile.write('<TH> ESTADO ACEPTACION </TH>')
             myFile.write('</TR>')
+            myFile.write('</thead>')
+            myFile.write('<tbody>')
             while printval is not None:
                 myFile.write('<TR>')
                 myFile.write('<TH> ' + str(counter) + ' </TH>')
@@ -587,6 +671,9 @@ class AnalizadorLexicoCSS:
                 myFile.write("</TR>");
                 counter += 1
                 printval = printval.next
+            myFile.write('</tbody>')
+            myFile.write('</table>')
+            myFile.write('</div>')
             myFile.write('</body>')
             myFile.write('</html>')
 prueba  = """ .ejemplo{
@@ -610,7 +697,7 @@ background: 0 0 0 0.2rem rgba(51, 51, 51, 0.25);
 """
 lexio = AnalizadorLexicoCSS()
 lexio.AnalizadorCSS(prueba)
-listReportB.listPrint()
+listReportBCSS.listPrint()
 lexio.ReportBitacoraCSS()
 lexio.ReportTokensCSS()
 lexio.ReportTokensErrorCSS()

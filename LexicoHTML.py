@@ -1,7 +1,7 @@
 from Error import *
 from simpleList import *
 from TokensHTML import * 
-
+import os 
 listTokensLHTML = SingleLinkedList()
 listTokensEHTML = SingleLinkedList()
 listTokensCHTML = SingleLinkedList()
@@ -63,10 +63,14 @@ class AnalizadorLexicoHTML:
             if self.state == 0:
                 if c == "\t" or c == "\r" or c == "\b" or c == "\f" or c == " ":
                     self.state = 0
+                    self.auxLex += c
+                    self.addTokens("ESPACIOS")
                 elif c == "\n":
                     self.row += 1
                     self.column = 0
                     self.state = 0
+                    self.auxLex += c
+                    self.addTokens("ESPACIOS")
                 elif c.isalpha() or c.isnumeric():
                     aux = entra[i+1]
                     self.auxLex += c
@@ -450,21 +454,64 @@ class AnalizadorLexicoHTML:
                     self.addColors("COMENTARIO")
 
     def addTokens(self,Type):
-        listTokensLHTML.InsertEnd(TokensHTML(self.auxLex.lower(),Type,self.column,self.row))
+        listTokensLHTML.InsertEnd(TokensHTML(self.auxLex,Type,self.column,self.row))
         self.auxLex = ""
         self.state = 0
     
     def addErrors(self,Type):
-        listTokensEHTML.InsertEnd(TokensHTML(self.auxLex.lower(),Type,self.column,self.row))
+        listTokensEHTML.InsertEnd(TokensHTML(self.auxLex,Type,self.column,self.row))
         self.auxLex = ""
         self.state = 0
     
     def addColors(self, Type):
-        listTokensCHTML.InsertEnd(TokensHTML(self.auxLex.lower(),Type,self.column,self.row))
+        listTokensCHTML.InsertEnd(TokensHTML(self.auxLex,Type,self.column,self.row))
         self.auxLex = ""
         self.state = 0
 
+    def ReportLErrorsHTML(self):
+        printval = listTokensEHTML.headval
+        counter = 1
+        with open('ReportTokensHTMLErrorss.html', 'w') as myFile:
+            myFile.write('<!DOCTYPE html>\n')
+            myFile.write('<html lang="en">\n')
+            myFile.write('<head>\n')
+            myFile.write('\t<title>Report Errors HTML</title>\t\n')
+            myFile.write('<meta charset="utf-8">\n\t')
+            myFile.write('<meta name="viewport" content="width=device-width, initial-scale=1">\n\t')
+            myFile.write('<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">\n\t')
+            myFile.write('<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>\n\t')
+            myFile.write('<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>\n\t')
+            myFile.write('<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>\n\t')
+            myFile.write('</head>\n\t')
+            myFile.write('<body>\n\t')
+            myFile.write('<div class="container">\n\t')
+            myFile.write('<h1 style="text-align: center;">Report Errors CSS</h1>\n\t')
+            myFile.write('<table class="table">\n\t')
+            myFile.write('<thead class="thead-dark">\n\t')
+            myFile.write('<tr>\n\t') 
+            myFile.write('<TH> ID </TH>')
+            myFile.write('<TH> Token</TH>')
+            myFile.write('<TH> Lexema  </TH>')
+            myFile.write('<TH> Columna </TH>')
+            myFile.write('<TH> Fila </TH>')
+            myFile.write('</TR>')
+            myFile.write('</thead>')
+            myFile.write('<tbody>')
+            while printval is not None:
+                myFile.write('<TR>')
+                myFile.write('<TH> ' + str(counter) + ' </TH>')
+                myFile.write('<TH> ' + printval.getToken().getTipo() + ' </TH>')
+                myFile.write('<TH> ' + printval.getToken().getLex() + ' </TH>')
+                myFile.write('<TH> ' + str(printval.getToken().getColumna()) + ' </TH>')
+                myFile.write('<TH> ' + str(printval.getToken().getFila()) + ' </TH>')
+                myFile.write("</TR>");
+                counter += 1
+                printval = printval.next
+            myFile.write('</tbody>')
+            myFile.write('</table>')
+            myFile.write('</div>')
+            myFile.write('</body>')
+            myFile.write('</html>')
+        os.system('xdg-open ReportTokensHTMLErrorss.html')
 
-anali = AnalizadorLexicoHTML()
-    
-test = """"""
+

@@ -4,6 +4,7 @@ import os
 myListTokens = SingleLinkedList()
 myListErrors = SingleLinkedList()
 myListColores = SingleLinkedList()
+flagJS = False
 class AnalizadorLexicoJS:
     state = 0
     auxLex = ""
@@ -11,6 +12,7 @@ class AnalizadorLexicoJS:
     row = 1
     caracter = ""
     contID = 0
+    flagJS = False
 
 
 
@@ -59,6 +61,7 @@ class AnalizadorLexicoJS:
     def analizadorColoresJS(self,entra):
         entra += "#"
         aux = ''
+        ruta = ''
         for i, c in enumerate(entra):
             self.letra = entra[i]
             if self.state == 0:
@@ -355,90 +358,27 @@ class AnalizadorLexicoJS:
                     self.state = 8
 
             elif self.state == 8:
-                aux = entra[i+1]
-                if c.isalpha():
-                    extra += c
-                    self.auxLex += c
-                    self.state = 8
-                    if aux == "\n":
-                        self.state = 9
-                    elif "PATHL" in extra:
-                        self.state = 10
-                    elif "PATHW" in extra:
-                        self.state = 10
-                elif c.isnumeric():
-                    extra += c
-                    self.auxLex += c
-                    self.state = 8
-                    if aux == "\n":
-                        self.state = 9
-                    elif extra == "PATHL":
-                        self.state = 8
-                    elif extra == "PATHW":
-                        self.state = 8
-                elif c == '\t' or c == '\r' or c == '\b' or c == '\f' or c == ' ':
-                    extra += c
-                    self.auxLex += c
-                    self.state = 8
-                    if aux == "\n":
-                        self.state = 9
-                    elif "PATHL" in extra:
-                        self.state = 10
-                    elif "PATHW" in extra:
-                        self.state = 10
-                elif c.isascii():
-                    extra += c
-                    self.auxLex += c
-                    self.state = 8
-                    if aux == "\n":
-                        self.state = 9
-                    elif "PATHL" == extra:
-                        self.state = 8
-                    elif "PATHW" == extra:
-                        self.state = 8
-
-            elif self.state == 9:
-                self.auxLex += c
-                self.addColores("COMENTARIOS")
-
-            elif self.state == 10:
-                aux = entra[i+1]
-                if c == ":" or c == "-" or c == ">" or c.isascii():
-                    self.auxLex += c
-                    if aux == '\t' or aux == '\r' or aux == '\b' or aux == '\f' or aux == ' ':
-                        self.state = 10
-                    elif aux == "/":
-                        self.state = 11
-                    elif aux == "c":
-                        self.state = 13
-                    else:
-                        self.state = 10
-                elif c == '\t' or c == '\r' or c == '\b' or c == '\f' or c == ' ':
-                    self.auxLex += c
-                    if aux == '\t' or aux == '\r' or aux == '\b' or aux == '\f' or aux == ' ':
-                        self.state = 10
-                    elif aux == "/":
-                        self.state = 11
-                    elif aux == "c":
-                        self.state = 13
-            elif self.state == 11:
-                if c == "/":
-                    self.auxLex += c
-                    self.state = 12
-            elif self.state == 12:
                 if not (c == "\n"):
                     self.auxLex += c
-                    self.state = 12
+                    ruta += c
+                    self.state = 8
+                elif "PATHL" in ruta and c == '\n':
+                    self.auxLex += c
+                    self.addTokens("COMENTARIO_ESPECIAL")
+                    self.flagJS = True
+                    print(ruta)
+                    ruta = ''
+                elif "PATHW" in ruta and c == '\n':
+                    self.auxLex += c
+                    self.addTokens("COMENTARIO_ESPECIAL")
+                    self.flagJS = True
+                    print(ruta)
+                    ruta = ''
                 else:
-                    self.auxLex += c
-                    self.addColores("COMENTARIO_ESPECIAL")
-            elif self.state == 13:
-                if not (c == "\n"):
-                    self.auxLex += c
-                    self.state = 13
-                else:
-                    self.auxLex += c
-                    self.addColores("COMENTARIO_ESPECIAL")
+                   self.auxLex += c
+                   self.addTokens("COMENTARIOS")
+
+           
             elif self.state == 14:
                 if c == "-":
                     self.auxLex += c
@@ -510,18 +450,21 @@ class AnalizadorLexicoJS:
 
                 if c == '\t' or c == '\r' or c == '\b' or c == '\f' or c == ' ':
                     self.state = 0
-                
+                    self.auxLex += c
+                    self.addTokens("ESPACIOS")
                 elif c == '\n':
                     self.row += 1
                     self.state = 0
                     self.column = 0
+                    self.auxLex += c
+                    self.addTokens("ESPACIOS")
 
-                elif c.isalpha() or c == "_":
+                elif c.isalpha():
                     aux = entra[i+1]
                     self.auxLex += c
                     self.state = 1
                     self.column += 1
-                    if(not (aux.isalpha())):
+                    if(not (aux.isalpha() or aux.isnumeric())):
                         aux1 = self.VerifyReservedToken()
                         self.addTokens(aux1)
                 elif c.isdigit():
@@ -539,7 +482,7 @@ class AnalizadorLexicoJS:
                     aux = entra[i+1]
                     self.auxLex += c
                     self.column += 1
-                    if not (aux == "="):
+                    if not (aux == "="):    
                         self.addTokens("OPERADORES")
                     elif aux == "=":
                         self.state = 22
@@ -800,12 +743,14 @@ class AnalizadorLexicoJS:
                 elif "PATHL" in ruta and c == '\n':
                     self.auxLex += c
                     self.addTokens("COMENTARIO_ESPECIAL")
-                    print(ruta)
+                    
+                    flagJS = True
                     ruta = ''
-                elif "PATHW"in ruta and c == '\n':
+                elif "PATHW" in ruta and c == '\n':
                     self.auxLex += c
                     self.addTokens("COMENTARIO_ESPECIAL")
-                    print(ruta)
+                    flagJS = True
+                    
                     ruta = ''
                 else:
                    self.auxLex += c
@@ -947,7 +892,7 @@ def reportHTMLTokens():
                 xa = xa.next
             myFile.write('</body>')
             myFile.write('</html>')
-
+        os.system('xdg-open ReportTokensJS.html') 
 
 def reportHTMLTokensErrors():
     printval = myListErrors.headval
@@ -979,4 +924,5 @@ def reportHTMLTokensErrors():
                 printval = printval.next
             myFile.write('</body>')
             myFile.write('</html>')
+    os.system('xdg-open ReportTokensErrosJS.html')
 

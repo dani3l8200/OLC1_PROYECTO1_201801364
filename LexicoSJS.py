@@ -21,7 +21,6 @@ class AnalizadorLexicoSJS:
                     self.row += 1
                     self.column = 0
                     self.state = 0
-                    self.addTokens("NUEVA_EXPRESION")
                 elif c.isalpha():
                     aux = entra[i+1]
                     self.auxLex += c
@@ -228,6 +227,7 @@ class AnalizadorLexicoSJS:
         listTokensCSintactico.InsertEnd(TokensJS(self.auxLex, Type, self.column, self.row))
         self.auxLex = ""
         self.state = 0
+
 
 
 

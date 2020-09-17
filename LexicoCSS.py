@@ -2,10 +2,11 @@ from Error import *
 from simpleList import * 
 from TokensCSS import *
 from Bitacora import * 
+import os 
 listTokensLCSS = SingleLinkedList()
 listTokensECSS = SingleLinkedList()
 listReportBCSS = SingleLinkedList()
-
+listColoresCSS = SingleLinkedList()
 class AnalizadorLexicoCSS:
     state = 0
     auxLex = ""
@@ -14,6 +15,8 @@ class AnalizadorLexicoCSS:
     chain = ""
     myIterator = 0
     auxState = 1
+    ruta = ""
+    flagCSS = False
     def VerifyReservedToken(self):
         if self.auxLex.lower() == "color".lower():
             return "RESERVADA"
@@ -135,10 +138,14 @@ class AnalizadorLexicoCSS:
             if self.state == 0:
                 if c == "\t" or c == "\r" or c == "\b" or c == "\f" or c == " ":
                     self.state = 0
+                    self.auxLex += c
+                    self.addTokens("ESPACIOS")
                 elif c == "\n":
                     self.row += 1
                     self.column = 0
                     self.state = 0
+                    self.auxLex += c
+                    self.addTokens("ESPACIOS")
                 
                 elif c == "/":
                     extra = ""
@@ -353,8 +360,31 @@ class AnalizadorLexicoCSS:
                 if not (c == "/"):
                     self.auxLex += c
                     self.state = 3
+                    self.ruta += c 
                     self.myIterator += 1
                     self.ReportBitacora(3,self.myIterator,False)
+                elif "PATHW" in self.auxLex and c == '/':
+                    self.auxLex += c
+                    self.myIterator += 1
+                    self.ReportBitacora(3,self.myIterator,True)
+                    self.myIterator = 0
+                    self.addTokens("COMENTARIO_ESPECIAL")
+                    self.auxLex = "ESTADO INICIAL"
+                    self.ReportBitacora(0,self.myIterator,False)
+                    self.auxLex = ""
+                    self.flagCSS = True
+                    self.ruta = ''
+                elif "PATHL" in self.auxLex and c == '/':
+                    self.auxLex += c
+                    self.myIterator += 1
+                    self.ReportBitacora(3,self.myIterator,True)
+                    self.myIterator = 0
+                    self.addTokens("COMENTARIO_ESPECIAL")
+                    self.auxLex = "ESTADO INICIAL"
+                    self.ReportBitacora(0,self.myIterator,False)
+                    self.auxLex = ""
+                    self.flagCSS = True
+                    self.ruta = ''
                 else:
                     self.auxLex += c
                     self.myIterator += 1
@@ -527,7 +557,255 @@ class AnalizadorLexicoCSS:
                 self.auxLex = "ESTADO INICIAL"
                 self.ReportBitacora(0,self.myIterator,False)
                 self.auxLex = ""
+    
+    def ColoresCSS(self,entra):
+        entra += "~"
+        aux = ""
+        for i, c in enumerate(entra):
+            if self.state == 0:
+                if c == "\t" or c == "\r" or c == "\b" or c == "\f" or c == " ":
+                    self.state = 0
+                    self.auxLex += c
+                    self.addColors("ESPACIOS")
+                elif c == "\n":
+                    self.row += 1
+                    self.column = 0
+                    self.state = 0
+                    self.auxLex += c
+                    self.addColors("ESPACIOS")
+                
+                elif c == "/":
+                    extra = ""
+                    aux = entra[i+1]
+                    self.auxLex += c
+                    self.column += 1
+                    if not (aux == "*"):
+                        self.addColors("OPERADOR")
+                    elif aux == "*":
+                        self.state = 1
+             
+                elif c == "*":
+                    self.auxLex += c
+                    self.column += 1
+                    self.addColors("OPERADOR")
+               
+                elif c == "{":
+                    self.auxLex += c
+                    self.column += 1
+                    self.addColors("OTROS")
+
+                elif c == "}":
+                    self.auxLex += c
+                    self.column += 1
+                    self.addColors("OTROS")
+
+                elif c == ":":
+                    self.auxLex += c
+                    self.column += 1
+                    self.addColors("OTROS")
+
+
+                elif c == ";":
+                    self.auxLex += c
+                    self.column += 1
+                    self.addColors("OTROS")
+
+                elif c == ",":
+                    self.auxLex += c
+                    self.column += 1
+                    self.addColors("OTROS")
+                    
+
+                elif c == "(":
+                    self.auxLex += c
+                    self.column += 1
+                    self.myIterator += 1
+                    self.addColors("OPERADOR")
+
+
+                elif c == ")":
+                    self.auxLex += c
+                    self.column += 1
+                    self.addColors("OPERADOR")
+
+                elif c == "-":
+                    self.auxLex += c
+                    self.column += 1
+                    self.state = 6
+
+                elif c.isalpha():
+                    aux = entra[i+1]
+                    self.column += 1
+                    self.auxLex += c
+                    if(not (aux.isalpha())):
+                        aux1 = self.VerifyReservedToken()
+                        self.addColors(aux1)
+                    else:
+                        self.state = 4
+
+                elif c.isnumeric():
+                    aux = entra[i+1]
+                    self.auxLex += c
+                    self.column += 1
+                    if aux == ".":
+                        self.state = 6
+                    elif not(aux.isnumeric()):
+                        self.addColors("NUMEROS")
+                    else: 
+                        self.state = 6
+                    
+    
+                
+                elif c == "#":
+                    self.auxLex += c
+                    self.column += 1
+                    self.addColors("OTROS")
+
+                
+                elif c == '"':
+                    self.auxLex += c
+                    self.column += 1
+                    self.state = 9
+              
+                elif c == ".":
+                    self.auxLex += c
+                    self.column += 1
+                    self.addColors("OTROS")
+
+            
+                else:
+                    if c == "~" and i == (len(entra)-1):
+                        print("se finalizo el analisis lexico")
+                    else:
+                        self.auxLex += c
+                        self.addColors("ERRORES")
+         
+            elif self.state == 1:
+                if c == "*":
+                    self.auxLex += c
+                    self.state = 2
+            
+            elif self.state == 2:
+                if not (c == '*'):
+                    self.auxLex += c
+                    self.state = 2
+                else:
+                    self.auxLex += c
+                    self.state = 3
+                                 
+            elif self.state == 3:
+                if not (c == "/"):
+                    self.auxLex += c
+                    self.state = 3
+                elif "PATHW" in self.auxLex and c == '/':
+                    self.auxLex += c
+                    self.addColors("COMENTARIO_ESPECIAL")
+                    self.flagCSS = True
+                    self.ruta = ''
+                elif "PATHL" in self.auxLex and c == '/':
+                    self.auxLex += c
+                    self.addColors("COMENTARIO_ESPECIAL")
+                    self.flagCSS = True
+                    self.ruta = ''
+                else:
+                    self.auxLex += c
+                    self.addColors("COMENTARIOS")
+            
+            elif self.state == 4:
+                aux = entra[i+1]
+                if c.isalpha():
+                    self.auxLex += c
+                    self.state = 4
+                    if(aux == "-"):
+                        self.state = 4
+                    elif(not (aux.isalpha() or aux.isnumeric() or aux == "-")):
+                        aux1 = self.VerifyReservedToken()
+                        self.addColors(aux1)
+                elif c.isnumeric():
+                    self.auxLex += c
+                    self.state = 4
+                    if(not (aux.isalpha() or aux.isnumeric())):
+                        aux1 = self.VerifyReservedToken()
+                        self.addColors(aux1)
+                elif c == "-":
+                    self.auxLex += c
+                    self.state = 5
+            
+            elif self.state == 5:
+                aux = entra[i+1]
+                if c.isalpha():
+                    self.auxLex += c
+                    self.state = 5
+                    if(not (aux.isalpha())):
+                        aux1 = self.VerifyReservedToken()
+                        self.addColors(aux1)
+                        
+            
+            elif self.state == 6:
+                aux = entra[i+1]
+                if c.isnumeric():
+                    self.auxLex += c
+                    self.state = 6
+                    if aux == ".":
+                        self.state = 6
+                    elif aux == "%":
+                        self.state = 8
+                    elif not(aux.isnumeric()):
+                        self.addColors("NUMEROS")
+                        
+
+                elif c == ".":
+                    self.auxLex += c
+                    self.state = 7
+
+            elif self.state == 7:
+                aux = entra[i+1]
+                if c.isnumeric():
+                    self.auxLex += c
+                    self.state = 7
+                    if aux == "%":
+                        self.state = 8
+                    elif (not (aux.isnumeric())):
+                        self.addColors("NUMEROS")
+            
            
+            elif self.state == 8:
+                if c == "%":
+                    self.auxLex += c
+                    self.addColors("PORCENTAJE")
+                   
+            
+            
+            elif self.state == 9:
+                aux = entra[i+1]
+                if c.isalpha():
+                    self.auxLex += c
+                    self.state = 9
+                    if(aux == '"'):
+                        self.state = 10
+                elif c.isnumeric():
+                    self.auxLex += c
+                    self.state = 9
+                    if(aux == '"'):
+                        self.state = 10
+                elif c == '\t' or c == '\r' or c == '\b' or c == '\f' or c == ' ':
+                    self.auxLex += c
+                    self.state = 9
+                elif (  c == chr(33) or c == chr(35) or c == chr(36) or c == chr(37) or c == chr(38) or c == chr(39) or c == chr(40) or c == chr(41) or c == chr(42) 
+                     or c == chr(43) or c == chr(44) or c == chr(45) or c == chr(46) or c == chr(47) or c == chr(58) or c == chr(59) or c == chr(60) or c == chr(61)
+                     or c == chr(62) or c == chr(63) or c == chr(64) or c == chr(91) or c == chr(92) or c == chr(93) or c == chr(94) or c == chr(95) or c == chr(96)
+                     or c == chr(93) or c == chr(94) or c == chr(95)):
+                    self.auxLex += c
+                    self.state = 9
+                    if(aux == '"'):
+                        self.state = 10
+            
+            elif self.state == 10:
+                self.auxLex += c
+                self.addColors("CONT_FOR_STRING")     
+            
+           
+
     def ReportBitacora(self,state,iteracion,aceptacion):
         listReportBCSS.InsertEnd(Bitacora(state,self.auxLex,iteracion,aceptacion))
 
@@ -541,6 +819,12 @@ class AnalizadorLexicoCSS:
         listTokensECSS.InsertEnd(TokensCSS(self.auxLex,Type,self.column,self.row))
         self.auxLex = ""
         self.state = 0
+
+    def addColors(self, Type):
+        listColoresCSS.InsertEnd(TokensCSS(self.auxLex, Type,self.column, self.row))
+        self.auxLex = ""
+        self.state = 0
+        
 
     def ReportTokensCSS(self):
         printval = listTokensLCSS.headval
@@ -631,6 +915,7 @@ class AnalizadorLexicoCSS:
             myFile.write('</div>')
             myFile.write('</body>')
             myFile.write('</html>')
+        os.system('xdg-open ReportTokensCSSError.html')
 
     def ReportBitacoraCSS(self):
         printval = listReportBCSS.headval
@@ -676,28 +961,9 @@ class AnalizadorLexicoCSS:
             myFile.write('</div>')
             myFile.write('</body>')
             myFile.write('</html>')
-prueba  = """ .ejemplo{
-margin-top: 0;
-margin-bottom: 0.5em;
-line-height: inherit;
-position: relative;
-font-size: 75%;
-color: #333;
-border-top: 2px solid rgba(0, 0, 0, 0.1);
-content: "\\2014\\00A0";
-position: absolute;
-background-image: url("/home/documents/picture.png");
-background-color: rgba(220, 53, 69, 0.9);
-font: 76% arial, sans-serif;
-background: 0 0 0 0.2rem rgba(51, 51, 51, 0.25);
-
+        os.system('xdg-open ReportBitacoraCCS.html')
+prueba  = """ 29%
 }
 
 
 """
-lexio = AnalizadorLexicoCSS()
-lexio.AnalizadorCSS(prueba)
-listReportBCSS.listPrint()
-lexio.ReportBitacoraCSS()
-lexio.ReportTokensCSS()
-lexio.ReportTokensErrorCSS()

@@ -3,7 +3,7 @@ from TokensJS import *
 from Error import * 
 from simpleList import *
 listErrorSintactico = SingleLinkedList()
-
+import os 
 class SintacticoJS:
     indice = 0
     preaAnalisis = None
@@ -24,9 +24,9 @@ class SintacticoJS:
         self.ListaP()
     
     def ListaP(self):
-        if not (self.preaAnalisis.getToken().getTipo() == "SIMBOLOACEPTACION"):
-            self.Parea("NUEVA_EXPRESION")
-            self.Expresion() 
+        if (self.preaAnalisis.getToken().getTipo() == NUMEROS or self.preaAnalisis.getToken().getTipo() == ID 
+            or self.preaAnalisis.getToken().getTipo() == S_PARENTESIS_A or self.preaAnalisis.getToken().getTipo() == "DECIMAL"):
+            self.Expresion()
             self.ListaP()
         else:
             pass 
@@ -78,8 +78,8 @@ class SintacticoJS:
                 self.Parea(S_PARENTESIS_C)
           
         else:
-            self.addError(self.preaAnalisis.getToken().getFila(),self.preaAnalisis.getToken().getColumna(),"No Aceptado",self.CadenaCompleta(self.listTokens))
-            
+            self.addError(self.preaAnalisis.getToken().getFila(),self.preaAnalisis.getToken().getColumna(),self.preaAnalisis.getToken().getTipo(),"Was expected 'parentesis izquierdo | digito | id'",self.preaAnalisis.getToken().getLex())
+    
     
     def Parea(self,Tipo):
         if self.errorSintactico:
@@ -94,21 +94,14 @@ class SintacticoJS:
                     self.indice += 1
                     self.preaAnalisis = self.listTokens[self.indice]
             else:
-                self.addError(self.preaAnalisis.getToken().getFila(),self.preaAnalisis.getToken().getColumna(),"No Aceptado",self.CadenaCompleta(self.listTokens))
+                self.addError(self.preaAnalisis.getToken().getFila(),self.preaAnalisis.getToken().getColumna(),self.preaAnalisis.getToken().getTipo(),"Was expected 'parentesis izquierdo | digito | id'",self.preaAnalisis.getToken().getLex())
     
 
-    def addError(self,row,column,chain,description):
-        listErrorSintactico.InsertEnd(Error(chain,description,column,row))
+    def addError(self,row,column,chain,description,valo):
+        listErrorSintactico.InsertEnd(Error(chain,description,column,row,valo))
 
-    def CadenaCompleta(self,mylist):
-        xa = mylist.headval
-        aux = ""
-        while xa is not None: 
-            aux += xa.getToken().getLex()
-            xa = xa.next
-        return aux
 
-    def ReportHTMLSintactico(self):
+def ReportHTMLSintactico():
         xa = listErrorSintactico.headval
         counter = 1
         with open('ReportSintacticoJS.html', 'w') as myFile:
@@ -117,12 +110,13 @@ class SintacticoJS:
             myFile.write('<Center><h1>ANALIZADOR SINTACTICO JS</h1></Center>')
             myFile.write('<Center><TABLE border = 3.5 bordercolor = black bgcolor = #B0E0E6></Center>')
             myFile.write('<TR>')
-            myFile.write('<Center><TH COLSPAN = 5 > Tabla de Error Sintactico </TH></Center>')
+            myFile.write('<Center><TH COLSPAN = 6> Tabla de Error Sintactico </TH></Center>')
             myFile.write('</TR>')
             myFile.write('<TR>')
             myFile.write('<TH> ID </TH>')
-            myFile.write('<TH> Operacion Aritmetica</TH>')
-            myFile.write('<TH> Valido  </TH>')
+            myFile.write('<TH> Description</TH>')
+            myFile.write('<TH> Tipo Token  </TH>')
+            myFile.write('<TH> Valor Token  </TH>')
             myFile.write('<TH> Columna </TH>')
             myFile.write('<TH> Fila </TH>')
             myFile.write('</TR>')
@@ -131,6 +125,7 @@ class SintacticoJS:
                 myFile.write('<TH> ' + str(counter) + ' </TH>')
                 myFile.write('<TH> ' + xa.getToken().getDescription() + ' </TH>')
                 myFile.write('<TH> ' + xa.getToken().getChar() + ' </TH>')
+                myFile.write('<TH> ' + xa.getToken().getValo() + ' </TH>')
                 myFile.write('<TH> ' + str(xa.getToken().getColumna()) + ' </TH>')
                 myFile.write('<TH> ' + str(xa.getToken().getFila()) + ' </TH>')
                 myFile.write("</TR>");
@@ -138,3 +133,4 @@ class SintacticoJS:
                 xa = xa.next
             myFile.write('</body>')
             myFile.write('</html>')
+        os.system('xdg-open ReportSintacticoJS.html')

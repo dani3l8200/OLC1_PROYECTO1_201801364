@@ -52,25 +52,9 @@ class SingleLinkedList():
             yield current
             current = current.next
 
-    def RemoveItem(self,key):
-        headVal = self.headval
-
-        if headVal is not None:
-            self.headval = headVal.next
-            headVal = None
-            return
-        
-        while headVal is not None:
-            if headVal.data == key:
-                break
-            prev = headVal
-            headVal = headVal.next 
-        
-        if headVal == None:
-            return
-        
-        prev.next = headVal.next
-        headVal = None
+    def RemoveItem(self):
+        self.headval = None
+        self.cont = 0
     
 
     def listPrint(self):
